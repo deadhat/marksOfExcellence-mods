@@ -74,7 +74,7 @@ techTreeWidth = 54
 class Config(object):
     def __init__(self):
         self.ids = 'marksOnGunExtended'
-        self.version = 'v8.08 (2020-03-04)'
+        self.version = 'v8.09 (2020-10-21)'
         self.version_id = 808
         self.author = 'by spoter, OldSkool'
         self.buttons = {
@@ -101,7 +101,7 @@ class Config(object):
             'upColor'                               : 18,
             'downColor'                             : 21,
             'unknownColor'                          : 16,
-            'font'                                  : '$IMELanguageBar',
+            'font'                                  : '$FieldFont', #'$IMELanguageBar',
             'background'                            : True,
             'backgroundImage'                       : '../maps/icons/quests/inBattleHint.png',
             'backgroundData'                        : {'alpha': 0.3, 'width': 54, 'height': 42},
