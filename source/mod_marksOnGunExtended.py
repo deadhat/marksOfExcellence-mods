@@ -1471,9 +1471,9 @@ def getExtraInfo(func, *args):
             result['nameString'] += percentText
     return result
 
-@inject.hook(LobbyEntry, '_getRequiredLibraries')
-@inject.log
-def getRequiredLibraries(func, *args):
+#@inject.hook(LobbyEntry, '_getRequiredLibraries')
+#@inject.log
+#def getRequiredLibraries(func, *args):
     #swfs = ['windows.swf',
     #'animations.swf',
     #'common_i18n.swf',
@@ -1488,8 +1488,8 @@ def getRequiredLibraries(func, *args):
     #if settingsCore.getSetting(GRAPHICS.RENDER_PIPELINE) == _EXTENDED_RENDER_PIPELINE:
     #    swfs.append('animations/ny/mainWidgetAmbient.swf')
     #return swfs
-    
-    return func(*args) + ('marksOnGun.swf',)
+#    
+#    return func(*args) + ('marksOnGun.swf',)
 
 
 BigWorld.MoESetupSize = flash.setupSize
