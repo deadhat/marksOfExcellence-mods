@@ -101,6 +101,7 @@
     "showInTechTree": true,
     "showInTechTreeMarkOfGunPercent": true,
     "showInTechTreeMarkOfGunPercentFirst": false,
+	"showInTechTreeMastery": true,
     "unknownColor": 16,
     "upColor": 18,
     "version": 808
