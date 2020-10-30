@@ -30,6 +30,7 @@ from gui.Scaleform.lobby_entry import LobbyEntry
 from gui.Scaleform.framework.application import AppEntry
 from helpers import dependency
 from skeletons.account_helpers.settings_core import ISettingsCore
+from dossiers2.ui.achievements import MARK_OF_MASTERY_RECORD
 
 DAMAGE_EVENTS = frozenset([BATTLE_EVENT_TYPE.RADIO_ASSIST, BATTLE_EVENT_TYPE.TRACK_ASSIST, BATTLE_EVENT_TYPE.STUN_ASSIST, BATTLE_EVENT_TYPE.DAMAGE, BATTLE_EVENT_TYPE.TANKING, BATTLE_EVENT_TYPE.RECEIVED_DAMAGE])
 COLOR = ['#0000FF', '#A52A2B', '#D3691E', '#6595EE', '#FCF5C8', '#00FFFF', '#28F09C', '#FFD700', '#008000', '#ADFF2E', '#FF69B5', '#00FF00', '#FFA500', '#FFC0CB', '#800080', '#FF0000', '#8378FC', '#DB0400', '#80D639', '#FFE041', '#FFFF00', '#FF6347', '#FFFFFF']
@@ -97,6 +98,7 @@ class Config(object):
             'showInTechTree'                        : True,
             'showInTechTreeMarkOfGunPercent'        : True,
             'showInTechTreeMarkOfGunPercentFirst'   : False,
+            'showInTechTreeMastery': True,
             'showInHangar'                          : True,
             'upColor'                               : 18,
             'downColor'                             : 21,
@@ -1351,30 +1353,26 @@ worker = Worker()
 def tankmanResponse(func, *args):
     worker.getCurrentHangarData()
     return func(*args)
-
-
+    
 @inject.hook(PlayerAvatar, 'onBattleEvents')
 @inject.log
 def onBattleEvents(func, *args):
     func(*args)
     if BigWorld.player().arena.bonusType == ARENA_BONUS_TYPE.REGULAR:
         worker.onBattleEvents(args[1])
-
-
+    
 @inject.hook(Vehicle, 'onHealthChanged')
 @inject.log
 def hookOnHealthChanged(func, self, newHealth, attackerID, attackReasonID):
     worker.shots(self, newHealth, attackerID)
     func(self, newHealth, attackerID, attackReasonID)
-
-
+    
 @inject.hook(Vehicle, 'startVisual')
 @inject.log
 def hookVehicleStartVisual(func, *args):
     func(*args)
     worker.initVehicle(args[0])
-
-
+    
 @inject.hook(PlayerAvatar, '_PlayerAvatar__startGUI')
 @inject.log
 def hookStartGUI(func, *args):
@@ -1382,8 +1380,7 @@ def hookStartGUI(func, *args):
     if BigWorld.player().arena.bonusType == ARENA_BONUS_TYPE.REGULAR:
         flash.startBattle()
         worker.startBattle()
-
-
+    
 @inject.hook(PlayerAvatar, '_PlayerAvatar__destroyGUI')
 @inject.log
 def hookDestroyGUI(func, *args):
@@ -1395,8 +1392,7 @@ def hookDestroyGUI(func, *args):
     except StandardError:
         pass
     func(*args)
-
-
+    
 @inject.hook(MarkOnGunAchievement, 'getUserCondition')
 @inject.log
 def getUserCondition(func, *args):
@@ -1404,9 +1400,7 @@ def getUserCondition(func, *args):
         if worker.dossier is not None:
             targetData = worker.dossier
             damage = ProfileUtils.getValueOrUnavailable(ProfileUtils.getValueOrUnavailable(targetData.getRandomStats().getAvgDamage()))
-            # noinspection PyProtectedMember
             track = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats()._getAvgValue(targetData.getRandomStats().getBattlesCountVer2, targetData.getRandomStats().getDamageAssistedTrack))
-            # noinspection PyProtectedMember
             radio = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats()._getAvgValue(targetData.getRandomStats().getBattlesCountVer2, targetData.getRandomStats().getDamageAssistedRadio))
             stun = ProfileUtils.getValueOrUnavailable(targetData.getRandomStats().getAvgDamageAssistedStun())
             currentDamage = int(damage + max(track, radio, stun))
@@ -1431,20 +1425,17 @@ def getUserCondition(func, *args):
                 temp = config.i18n['UI_tooltips'].format(**data)
                 return temp
     return func(*args)
-
-
+    
 @inject.hook(MarkOnGunAchievement, '__init__')
 @inject.log
 def initC(func, *args):
     func(*args)
     worker.dossier = args[1]
-
-
+    
 @inject.hook(NationObjDumper, '_getVehicleData')
 @inject.log
 def getExtraInfo(func, *args):
     result = func(*args)
-    
     
     if config.data['enabled'] and config.data['showInTechTree']:
         dossier = None
@@ -1467,37 +1458,18 @@ def getExtraInfo(func, *args):
             percent = float(dossier.getRecordValue(ACHIEVEMENT_BLOCK.TOTAL, 'damageRating') / 100.0)
             if config.data['showInTechTreeMarkOfGunPercent'] and percent:
                 percent = '%.2f' %percent if percent < 100 else '100.0'
-                percentText = '||%s <font color="%s">%s%%</font>||%s||%s||%s||%s'% (markOfGunStars, color[markOfGunValue], percent.rjust(5), techTreeX, techTreeY, techTreeHeight, techTreeWidth)
+                percent = '%s%%' %percent.rjust(5)
+                #percentText = '||%s <font color="%s">%s%%</font>||%s||%s||%s||%s'% (markOfGunStars, color[markOfGunValue], percent.rjust(5), techTreeX, techTreeY, techTreeHeight, techTreeWidth)
+            mastery = dossier.getTotalStats().getAchievement(MARK_OF_MASTERY_RECORD)
+            masteryValue = mastery.getValue()
+            if config.data['showInTechTreeMastery'] and masteryValue and masteryValue < 5:
+                markOfGunStars = '<img src="img://gui/%s" width="16" height="16" vspace="-16"/></img>' % mastery.getSmallIcon().replace('../', '')
+            percentText = '||%s<font color="%s">%s</font>||%s||%s||%s||%s'% (markOfGunStars, color[markOfGunValue], percent, techTreeX, techTreeY, techTreeHeight, techTreeWidth)
             result['nameString'] += percentText
     return result
-
-#@inject.hook(LobbyEntry, '_getRequiredLibraries')
-#@inject.log
-#def getRequiredLibraries(func, *args):
-    #swfs = ['windows.swf',
-    #'animations.swf',
-    #'common_i18n.swf',
-    #'guiControlsLogin.swf',
-    #'guiControlsLoginBattleDynamic.swf',
-    #'collider.swf',
-    #'marksOnGun.swf']
     
-    #_EXTENDED_RENDER_PIPELINE = 0
-    #settingsCore = dependency.instance(ISettingsCore)
-    #from account_helpers.settings_core.settings_constants import GRAPHICS
-    #if settingsCore.getSetting(GRAPHICS.RENDER_PIPELINE) == _EXTENDED_RENDER_PIPELINE:
-    #    swfs.append('animations/ny/mainWidgetAmbient.swf')
-    #return swfs
-#    
-#    return func(*args) + ('marksOnGun.swf',)
-
-
 BigWorld.MoESetupSize = flash.setupSize
- #BigWorld.MoESetupSize(h = 100, w = 200)
-
 BigWorld.MoEText = flash.set_text
- #BigWorld.MoEText('<font size=\"60\">100.00%</font>')
-
 BigWorld.MoEUpdateObject = flash.updateObject
 BigWorld.MoEData = flash.getData
 BigWorld.MoEName = flash.getNames
