@@ -75,8 +75,8 @@ techTreeWidth = 54
 class Config(object):
     def __init__(self):
         self.ids = 'marksOnGunExtended'
-        self.version = 'v8.09 (2020-10-21)'
-        self.version_id = 808
+        self.version = 'v8.10 (2021-01-25)'
+        self.version_id = 810
         self.author = 'by spoter, OldSkool'
         self.buttons = {
             'buttonShow'    : [Keys.KEY_NUMPAD9, [Keys.KEY_LALT, Keys.KEY_RALT]],
@@ -1363,9 +1363,9 @@ def onBattleEvents(func, *args):
     
 @inject.hook(Vehicle, 'onHealthChanged')
 @inject.log
-def hookOnHealthChanged(func, self, newHealth, attackerID, attackReasonID):
+def hookOnHealthChanged(func, self, newHealth, oldHealth, attackerID, attackReasonID):
     worker.shots(self, newHealth, attackerID)
-    func(self, newHealth, attackerID, attackReasonID)
+    func(self, newHealth, oldHealth, attackerID, attackReasonID)
     
 @inject.hook(Vehicle, 'startVisual')
 @inject.log
