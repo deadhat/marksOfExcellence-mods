@@ -1,10 +1,9 @@
 # mod_marksOnGunExtended
 #### Notes
 
-    TechTree and Hangar Part are removed in this source.
-	Hangar Part was fully remade and also TechTree part.
-	The marksInBattle remake is still in work and will fix
-	all the known issues.
+    MarksInHangar ands MarksInTechTree are addons to this mod.
+	They are not part of the original mod but work together with
+	its configuration file.
 	
 #### Configuration Menu
 ![ScreenShot](./moe1.png)
