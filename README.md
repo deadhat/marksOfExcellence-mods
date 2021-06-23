@@ -1,7 +1,7 @@
 # mod_marksOnGunExtended
 #### Notes
 
-    MarksInHangar ands MarksInTechTree are addons to this mod.
+    MarksInHangar and MarksInTechTree are addons to this modification.
 	They are not part of the original mod but work together with
 	its configuration file.
 	
